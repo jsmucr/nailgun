@@ -21,6 +21,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * An AliasManager is used to store and lookup command Aliases by name. See <a
@@ -30,6 +32,11 @@ import java.util.Set;
  */
 public class AliasManager {
 
+	/**
+	 * {@linkplain Logger} instance for this class.
+	 */
+	private static final Logger LOGGER = Logger.getLogger(AliasManager.class.getName());
+	
     /**
      * actual alias storage
      */
@@ -46,7 +53,7 @@ public class AliasManager {
             props.load(getClass().getClassLoader().getResourceAsStream("com/martiansoftware/nailgun/builtins/builtins.properties"));
             loadFromProperties(props);
         } catch (java.io.IOException e) {
-            System.err.println("Unable to load builtins.properties: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Unable to load builtins.properties", e);
         }
     }
 
@@ -77,7 +84,7 @@ public class AliasManager {
                     String desc = properties.getProperty(key + ".desc", "");
                     addAlias(new Alias(key, desc, clazz));
                 } catch (ClassNotFoundException e) {
-                    System.err.println("Unable to locate class " + properties.getProperty(key));
+                	LOGGER.log(Level.SEVERE, "Unable to locate class " + properties.getProperty(key), e);
                 }
             }
         }

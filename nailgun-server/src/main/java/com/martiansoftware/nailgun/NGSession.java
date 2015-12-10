@@ -26,6 +26,8 @@ import java.lang.reflect.Method;
 import java.net.Socket;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Reads the NailGun stream from the client through the command, then hands off
@@ -36,7 +38,12 @@ import java.util.Properties;
  */
 class NGSession extends Thread {
 
-    /**
+	/**
+	 * {@linkplain Logger} instance for this class.
+	 */
+	private static final Logger LOGGER = Logger.getLogger(NGServer.class.getName());
+	
+	/**
      * The server this NGSession is working for
      */
     private NGServer server = null;
@@ -290,9 +297,9 @@ class NGSession extends Thread {
 
                 } catch (NGExitException exitEx) {
                     exit.println(exitEx.getStatus());
-                    server.out.println(Thread.currentThread().getName() + " exited with status " + exitEx.getStatus());
+                    server.getLogger().log(Level.INFO, Thread.currentThread().getName() + " exited with status " + exitEx.getStatus());
                 } catch (Throwable t) {
-                    t.printStackTrace();
+                    LOGGER.log(Level.SEVERE, t.getMessage(), t);
                     exit.println(NGConstants.EXIT_EXCEPTION); // remote exception constant
                 }
 
@@ -300,7 +307,8 @@ class NGSession extends Thread {
                 socket.close();
 
             } catch (Throwable t) {
-                t.printStackTrace();
+                // t.printStackTrace();
+                LOGGER.log(Level.SEVERE, t.getMessage(), t);
             }
 
             ((ThreadLocalInputStream) System.in).init(null);
