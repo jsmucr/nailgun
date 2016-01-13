@@ -338,6 +338,8 @@ public class NGServer implements Runnable {
             shutdown = true;
         }
 
+        getLogger().info(String.format("Server at port %d shutdown initiated.", new Object[] { new Integer(getPort()) }));
+        
         try {
             serversocket.close();
         } catch (Throwable toDiscard) {
@@ -379,6 +381,8 @@ public class NGServer implements Runnable {
 
         System.setSecurityManager(originalSecurityManager);
 
+        getLogger().info(String.format("Server at port %d shutdown completed.", new Object[] { new Integer(getPort()) }));
+        
         if (exitVM) {
             System.exit(0);
         }
@@ -439,7 +443,7 @@ public class NGServer implements Runnable {
         }
         
         if (serversocket != null) {
-        	LOGGER.log(Level.INFO, getStartMessage());
+        	getLogger().log(Level.INFO, getStartMessage());
 	        try {
 	            while (!shutdown) {
 	                sessionOnDeck = sessionPool.take();
