@@ -61,7 +61,7 @@
 #endif
 
 #ifndef MSG_NOSIGNAL /* MinGW */
-	#define MSG_NOSIGNAL    0x4000  /* Do not generate SIGPIPE */
+ 	#define MSG_NOSIGNAL    0x0
 #endif
 
 #ifndef ECONNRESET /* MinGW */
