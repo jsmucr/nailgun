@@ -40,8 +40,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
-
-#define NAILGUN_VERSION "0.9.0"
+#include "version.inc"
 
 #define BUFSIZE (2048)
 

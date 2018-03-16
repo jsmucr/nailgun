@@ -1,0 +1,93 @@
+group 'com.martiansoftware'
+
+apply plugin: 'c'
+
+model {
+
+	platforms {
+        linux_x86 {
+			operatingSystem 'linux'
+            architecture 'x86'
+        }
+        linux_x64 {
+			operatingSystem 'linux'
+            architecture 'x64'
+        }
+        windows_x86 {
+			operatingSystem 'windows'
+            architecture 'x86'
+        }
+        windows_x64 {
+			operatingSystem 'windows'
+            architecture 'x64'
+        }
+    }
+
+    toolChains {
+
+        gcc(Gcc) {
+            path "/usr/bin"
+            eachPlatform() {
+                cppCompiler.executable "g++"
+            }
+            target("linux_x86") {
+                cppCompiler.withArguments { List<String> args ->
+                    args << "-m32" << "-march=i686" << "-mtune=generic"
+                }
+                linker.withArguments { List<String> args ->
+                    args << "-m32"
+                }
+            }
+            target("linux_x86_64")
+        }
+
+        mingw_x86(Gcc) {
+            eachPlatform() {
+                cCompiler.executable "i686-w64-mingw32-gcc"
+                cppCompiler.executable "i686-w64-mingw32-g++"
+                linker.executable "i686-w64-mingw32-g++"
+                assembler.executable "i686-w64-mingw32-as"
+                staticLibArchiver.executable "i686-w64-mingw32-ar"
+            }
+            target("windows_x86")
+        }
+
+        mingw_x86_64(Gcc) {
+            eachPlatform() {
+                cCompiler.executable "x86_64-w64-mingw32-gcc"
+                cppCompiler.executable "x86_64-w64-mingw32-g++"
+                linker.executable "x86_64-w64-mingw32-g++"
+                assembler.executable "x86_64-w64-mingw32-as"
+                staticLibArchiver.executable "x86_64-w64-mingw32-ar"
+            }
+            target("windows_x86_64")
+        }
+    }
+
+	components {
+		ng(NativeExecutableSpec) {
+			sources {
+				c {
+					source {
+						srcDir 'src/source'
+						include '**/*.c'
+					}
+					exportedHeaders {
+						srcDir 'src/include'
+					}
+				}
+			}
+		}
+	}
+
+	binaries {
+		all {
+			if (toolChain in Gcc) {
+                cCompiler.args '-Wall', '-pedantic', '-s', '-O3'
+                if (targetPlatform =~ 'windows') {
+                    linker.args '-lwsock32', '-static-libgcc', '-static-libstdc++'
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,4 @@
+rootProject.name = "nailgun"
+include 'nailgun-server'
+include 'nailgun-client'
+include 'nailgun-examples'

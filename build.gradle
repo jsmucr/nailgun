@@ -1,0 +1,7 @@
+group 'com.martiansoftware'
+version = '0.9.3'
+
+task createVersionFiles {
+    file('nailgun-client/src/include/version.inc').text = "#define NAILGUN_VERSION \"$version\""
+    file('nailgun-server/src/main/resources/com/martiansoftware/nailgun/nailgun-version.properties').text = "version=$version"
+}

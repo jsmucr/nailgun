@@ -130,7 +130,7 @@ public class NGConstants {
     static {
         Properties props = new Properties();
         try {
-            props.load(NGConstants.class.getResourceAsStream("/META-INF/maven/com.martiansoftware/nailgun-server/pom.properties"));
+            props.load(NGConstants.class.getResourceAsStream("nailgun-version.properties"));
         } catch (Exception e) {
         	LOGGER.log(Level.SEVERE, "Unable to load nailgun-version.properties", e);
         }

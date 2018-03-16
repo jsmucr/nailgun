@@ -1,0 +1,11 @@
+group 'com.martiansoftware'
+
+apply plugin: 'java'
+
+repositories {
+	mavenCentral()
+} 
+	
+dependencies {
+	compile project(':nailgun-server')
+}

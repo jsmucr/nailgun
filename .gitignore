@@ -1,6 +1,26 @@
-/nailgun-server/target/
-/nailgun-examples/target/
-/target/
-ng
-*.iml
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Intellij
 .idea/
+*.iml
+*.iws
+*.ipr
+
+# Mac
+.DS_Store
+
+# Maven
+/log/
+/target/
+/dependency-reduced-pom.xml
+
+extras/
+
+# Gradle
+build/
+*/build/
+.gradle/
+outbox/

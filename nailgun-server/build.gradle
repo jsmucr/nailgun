@@ -1,0 +1,15 @@
+group 'com.martiansoftware'
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'com.martiansoftware.nailgun.NGServer'
+
+repositories {
+	mavenCentral()
+} 
+	
+dependencies {
+	compile 'net.java.dev.jna:jna:4.1.0'
+	compile 'org.slf4j:slf4j-simple:1.7.12'
+}
