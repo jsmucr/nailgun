@@ -26,6 +26,8 @@ import java.lang.reflect.Method;
 import java.net.Socket;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Reads the NailGun stream from the client through the command, then hands off
@@ -35,8 +37,13 @@ import java.util.Properties;
  * @author <a href="http://www.martiansoftware.com/contact.html">Marty Lamb</a>
  */
 public class NGSession extends Thread {
-
-    /**
+	
+	/**
+	 * {@linkplain Logger} instance for this class.
+	 */
+	private static final Logger LOGGER = Logger.getLogger(NGServer.class.getName());
+	
+	/**
      * The server this NGSession is working for
      */
     private NGServer server = null;
@@ -193,6 +200,9 @@ public class NGSession extends Thread {
                 List remoteArgs = new java.util.ArrayList();
                 Properties remoteEnv = new Properties();
 
+                // For logging purposes
+                String callDetailsString = "";
+                
                 String cwd = null;			// working directory
                 String command = null;		// alias or class name
 
@@ -210,6 +220,7 @@ public class NGSession extends Thread {
                         case NGConstants.CHUNKTYPE_ARGUMENT:
                             //	command line argument
                             remoteArgs.add(line);
+                            callDetailsString += ' ' + line;
                             break;
 
                         case NGConstants.CHUNKTYPE_ENVIRONMENT:
@@ -226,6 +237,7 @@ public class NGSession extends Thread {
                         case NGConstants.CHUNKTYPE_COMMAND:
                             // 	command (alias or classname)
                             command = line;
+                            callDetailsString = line + callDetailsString;
                             break;
 
                         case NGConstants.CHUNKTYPE_WORKINGDIRECTORY:
@@ -236,6 +248,9 @@ public class NGSession extends Thread {
                         default:	// freakout?
                     }
                 }
+
+                // Log command line
+                LOGGER.info("Executing: " + callDetailsString);
 
                 String threadName;
                 if (socket.getInetAddress() != null) {
@@ -254,7 +269,7 @@ public class NGSession extends Thread {
                 PrintStream exit = null;
 
                 try {
-                    in = new NGInputStream(sockin, sockout, server.out, heartbeatTimeoutMillis);
+                    in = new NGInputStream(sockin, sockout, server.getLogger(), heartbeatTimeoutMillis);
                     out = new PrintStream(new NGOutputStream(sockout, NGConstants.CHUNKTYPE_STDOUT));
                     err = new PrintStream(new NGOutputStream(sockout, NGConstants.CHUNKTYPE_STDERR));
                     exit = new PrintStream(new NGOutputStream(sockout, NGConstants.CHUNKTYPE_EXIT));
@@ -343,16 +358,19 @@ public class NGSession extends Thread {
                             } finally {
                                 server.nailFinished(cmdclass);
                             }
+                            
+                            LOGGER.info("Execution finished: " + callDetailsString + ". Return code: 0");
                             exit.println(0);
                         }
 
                     } catch (NGExitException exitEx) {
                         in.close();
-                        exit.println(exitEx.getStatus());
-                        server.out.println(Thread.currentThread().getName() + " exited with status " + exitEx.getStatus());
+                        final int returnCode = exitEx.getStatus();
+                        LOGGER.log(returnCode == 0 ? Level.INFO : Level.WARNING, "Execution finished: " + callDetailsString + ". Return code: " + returnCode);
+                        exit.println(returnCode);
                     } catch (Throwable t) {
                         in.close();
-                        t.printStackTrace();
+                        LOGGER.log(Level.SEVERE, "Execution failed" + (callDetailsString.isEmpty() ? "." : (": " + callDetailsString)) , t);
                         exit.println(NGConstants.EXIT_EXCEPTION); // remote exception constant
                     }
                 } finally {
@@ -375,7 +393,7 @@ public class NGSession extends Thread {
                 }
 
             } catch (Throwable t) {
-                t.printStackTrace();
+                LOGGER.log(Level.SEVERE, "Failed to process incoming command.", t);
             }
 
             ((ThreadLocalInputStream) System.in).init(null);
