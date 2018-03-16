@@ -7,11 +7,10 @@ the command line without incurring the JVM startup overhead.
 Programs run in the server (which is implemented in Java), and are 
 triggered by the client (written in C), which handles all I/O.
 
-The server and examples are built using maven.  From the project directory,
-"mvn clean install" will do it.
+Use
 
-The client is built using make.  From the project directory, 
-"make && sudo make install" will do it.  To create the windows client
-you will additionally need to "make ng.exe".
+    gradle build
+	
+to build the application from source.
 
 For more information, see [the nailgun website](http://martiansoftware.com/nailgun/).
