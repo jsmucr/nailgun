@@ -60,7 +60,7 @@
 #endif
 
 #ifndef MSG_NOSIGNAL /* MinGW */
-	#define MSG_NOSIGNAL    0x4000  /* Do not generate SIGPIPE */
+ 	#define MSG_NOSIGNAL    0x0
 #endif
 
 #ifndef ECONNRESET /* MinGW */
@@ -141,6 +141,23 @@ char buf[BUFSIZE];
 #else
     int readyToSend = 0;
     struct timeval sendtime;
+#endif
+
+#ifdef WIN32
+    #undef perror
+
+    void perror(const char* prefix) {
+        int err = WSAGetLastError();
+        char msgbuf[256];
+        msgbuf[0] = 0;
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err,
+                      MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT), msgbuf, sizeof (msgbuf), NULL);
+        if (*msgbuf) {
+            fprintf(stderr, "%s: %s\n", prefix, msgbuf);
+            return;
+        }
+        fprintf(stderr, "%s: %d\n", prefix, err);
+    }
 #endif
 
 /**
